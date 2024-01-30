@@ -11,7 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/zb81/req.git"
   },
-  "bugs": "https://github.com/antfu/req/issues",
+  "bugs": "https://github.com/zb81/req/issues",
   "keywords": ["fetch", "axios", "request", "typescript"],
   "publishConfig": {
     "access": "public",
