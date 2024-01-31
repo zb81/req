@@ -1,7 +1,7 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, Method } from 'axios'
 import axios from 'axios'
 
-export interface ZbRequestConfig extends Omit<AxiosRequestConfig, 'method' | 'url'> {
+export interface RequestConfig extends Omit<AxiosRequestConfig, 'method' | 'url'> {
   requestInterceptor?: (config: AxiosRequestConfig) => AxiosRequestConfig
   responseInterceptor?: (response: AxiosResponse) => AxiosResponse
 }
@@ -9,13 +9,13 @@ export interface ZbRequestConfig extends Omit<AxiosRequestConfig, 'method' | 'ur
 export class Request {
   private readonly instance: AxiosInstance
 
-  constructor(config?: ZbRequestConfig) {
+  constructor(config?: RequestConfig) {
     this.instance = axios.create(config)
     this.instance.interceptors.request.use(config?.requestInterceptor as any)
     this.instance.interceptors.response.use(config?.responseInterceptor)
   }
 
-  request<R = AxiosResponse>(method: Method, url: string, config?: ZbRequestConfig) {
+  request<R = AxiosResponse>(method: Method, url: string, config?: RequestConfig) {
     return new Promise<R>((resolve, reject) => {
       if (config?.requestInterceptor)
         config = config.requestInterceptor(config)
@@ -30,23 +30,23 @@ export class Request {
     })
   }
 
-  get<R>(url: string, config?: ZbRequestConfig) {
+  get<R>(url: string, config?: RequestConfig) {
     return this.request<R>('GET', url, config)
   }
 
-  post<R>(url: string, config?: ZbRequestConfig) {
+  post<R>(url: string, config?: RequestConfig) {
     return this.request<R>('POST', url, config)
   }
 
-  put<R>(url: string, config?: ZbRequestConfig) {
+  put<R>(url: string, config?: RequestConfig) {
     return this.request<R>('PUT', url, config)
   }
 
-  patch<R>(url: string, config?: ZbRequestConfig) {
+  patch<R>(url: string, config?: RequestConfig) {
     return this.request<R>('PATCH', url, config)
   }
 
-  delete<R>(url: string, config?: ZbRequestConfig) {
+  delete<R>(url: string, config?: RequestConfig) {
     return this.request<R>('DELETE', url, config)
   }
 }
