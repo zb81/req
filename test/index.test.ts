@@ -1,30 +1,26 @@
 import { describe, expect, it } from 'vitest'
 import Request from '../src'
+import type { Root } from './types'
 
 const request = new Request({
-  baseURL: 'http://localhost:2881',
+  baseURL: 'https://httpbin.org',
   timeout: 10000,
   responseInterceptor(response) {
     return response.data
   },
 })
 
-interface ILoginDTO {
-  username: string
-  password: string
+interface IParams {
+  foo: string
 }
-interface ILoginVO {
-  access_token: string
-}
-function login(data: ILoginDTO) {
-  return request.post<ILoginVO>('/auth/login', {
-    data,
-  })
+
+function getRes(params: IParams) {
+  return request.get<Root<IParams>>('/get', { params })
 }
 
 describe('should', () => {
   it('success', async () => {
-    const res = await login({ username: 'zb81', password: '123456' })
-    expect(typeof res.access_token).toBe('string')
+    const res = await getRes({ foo: 'bar' })
+    expect(res.args.foo).toBe('bar')
   })
 })
