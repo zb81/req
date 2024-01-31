@@ -6,6 +6,48 @@
 [![JSDocs][jsdocs-src]][jsdocs-href]
 [![License][license-src]][license-href]
 
+## Quick Start
+
+```typescript
+import Request from '@zb81/req'
+// or
+import { Request } from '@zb81/req'
+
+// Instantiate with config and interceptors
+const request = new Request({
+  baseURL: 'https://httpbin.org',
+  timeout: 10000,
+  responseInterceptor(response) {
+    return response.data
+  },
+})
+
+// declare types
+interface Root<P> {
+  args: P
+  headers: Headers
+  origin: string
+  url: string
+}
+
+interface Headers {
+  Accept: string
+  'Accept-Encoding': string
+  Host: string
+  'User-Agent': string
+  'X-Amzn-Trace-Id': string
+}
+
+// define a request
+function getRes(params: IParams) {
+  return request.get<Root<IParams>>('/get', { params })
+}
+
+// invode a request with type
+const res = await getRes({ foo: 'bar' })
+expect(res.args.foo).toBe('bar') // 🚀 types supported
+```
+
 ## License
 
 [MIT](./LICENSE) License © 2024-PRESENT [Zhu Bei](https://github.com/zb81)
