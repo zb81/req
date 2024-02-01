@@ -1,9 +1,13 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, Method } from 'axios'
 import axios from 'axios'
+import { isFunction } from './utils'
 
 export interface RequestConfig extends Omit<AxiosRequestConfig, 'method' | 'url'> {
   requestInterceptor?: (config: AxiosRequestConfig) => AxiosRequestConfig
+  requestCatchInterceptor?: (error: any) => any
+
   responseInterceptor?: (response: AxiosResponse) => AxiosResponse
+  responseCatchInterceptor?: (error: any) => any
 }
 
 export class Request {
@@ -11,23 +15,26 @@ export class Request {
 
   constructor(config?: RequestConfig) {
     this.instance = axios.create(config)
-    this.instance.interceptors.request.use(config?.requestInterceptor as any)
-    this.instance.interceptors.response.use(config?.responseInterceptor)
+    this.instance.interceptors.request.use(config?.requestInterceptor as any, config?.requestCatchInterceptor)
+    this.instance.interceptors.response.use(config?.responseInterceptor, config?.responseCatchInterceptor)
   }
 
-  request<R = AxiosResponse>(method: Method, url: string, config?: RequestConfig) {
-    return new Promise<R>((resolve, reject) => {
-      if (config?.requestInterceptor)
-        config = config.requestInterceptor(config)
+  async request<R = AxiosResponse>(method: Method, url: string, config?: RequestConfig) {
+    if (isFunction(config?.requestInterceptor))
+      config = config.requestInterceptor(config)
 
-      this.instance.request({ method, url, ...config })
-        .then((res) => {
-          if (config?.responseInterceptor)
-            res = config.responseInterceptor(res)
-          resolve(res as R)
-        })
-        .catch(reject)
-    })
+    try {
+      let res = await this.instance.request({ ...config, method, url })
+      if (isFunction(config?.responseInterceptor))
+        res = config.responseInterceptor(res)
+      return [res, null] as [R, null]
+    }
+    catch (err) {
+      if (isFunction(config?.responseCatchInterceptor))
+        config.responseCatchInterceptor(err)
+
+      return [null, err] as [null, Error]
+    }
   }
 
   get<R>(url: string, config?: RequestConfig) {

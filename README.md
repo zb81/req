@@ -13,11 +13,16 @@ import Request from '@zb81/req'
 // or
 import { Request } from '@zb81/req'
 
+// biz error message
+const ERROR_MSG = 'That\'s bad...'
+
 // Instantiate with config and interceptors
 const request = new Request({
   baseURL: 'https://httpbin.org',
   timeout: 10000,
   responseInterceptor(response) {
+    if (Math.random() > 0.1) // biz error code
+      throw new Error(ERROR_MSG) // you can throw the error, or show messages
     return response.data
   },
 })
@@ -38,14 +43,21 @@ interface Headers {
   'X-Amzn-Trace-Id': string
 }
 
-// define a request
+// define a request function with error handler
 function getRes(params: IParams) {
-  return request.get<Root<IParams>>('/get', { params })
+  return request.get<Root<IParams>>('/get', {
+    params,
+    responseCatchInterceptor(error) {
+      // handle your biz error throwed
+      console.error(error.message) // 'That\'s bad...'
+    },
+  })
 }
 
 // invode a request with type
-const res = await getRes({ foo: 'bar' })
-expect(res.args.foo).toBe('bar') // 🚀 types supported
+const [res, err] = await getRes({ foo: 'bar' })
+if (err == null)
+  expect(res.args.foo).toBe('bar') // 🚀
 ```
 
 ## License
