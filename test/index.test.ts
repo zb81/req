@@ -21,9 +21,6 @@ interface IParams {
 function getRes(params: IParams) {
   return request.get<Root<IParams>>('/get', {
     params,
-    responseCatchInterceptor(error) {
-      console.error(error.message)
-    },
   })
 }
 

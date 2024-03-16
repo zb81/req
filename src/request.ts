@@ -1,12 +1,12 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, Method } from 'axios'
 import axios from 'axios'
-import { isFunction } from './utils'
 
-export interface RequestConfig extends Omit<AxiosRequestConfig, 'method' | 'url'> {
-  requestInterceptor?: (config: AxiosRequestConfig) => AxiosRequestConfig
-  requestCatchInterceptor?: (error: any) => any
+export type { Method, AxiosRequestConfig }
 
-  responseInterceptor?: (response: AxiosResponse) => AxiosResponse
+export interface RequestConfig extends AxiosRequestConfig {
+  requestInterceptor?: (config: AxiosRequestConfig) => AxiosRequestConfig | Promise<AxiosRequestConfig>
+
+  responseInterceptor?: (response: AxiosResponse) => AxiosResponse | Promise<AxiosResponse>
   responseCatchInterceptor?: (error: any) => any
 }
 
@@ -15,45 +15,37 @@ export class Request {
 
   constructor(config?: RequestConfig) {
     this.instance = axios.create(config)
-    this.instance.interceptors.request.use(config?.requestInterceptor as any, config?.requestCatchInterceptor)
+    this.instance.interceptors.request.use(config?.requestInterceptor as any)
     this.instance.interceptors.response.use(config?.responseInterceptor, config?.responseCatchInterceptor)
   }
 
-  async request<R = AxiosResponse>(method: Method, url: string, config?: RequestConfig) {
-    if (isFunction(config?.requestInterceptor))
-      config = config.requestInterceptor(config)
-
+  async request<R = AxiosResponse>(method: Method, url: string, config?: AxiosRequestConfig) {
     try {
-      let res = await this.instance.request({ ...config, method, url })
-      if (isFunction(config?.responseInterceptor))
-        res = config.responseInterceptor(res)
+      const res = await this.instance.request({ ...config, method, url })
       return [res, null] as [R, null]
     }
     catch (err) {
-      if (isFunction(config?.responseCatchInterceptor))
-        config.responseCatchInterceptor(err)
-
       return [null, err] as [null, Error]
     }
   }
 
-  get<R>(url: string, config?: RequestConfig) {
+  get<R>(url: string, config?: AxiosRequestConfig) {
     return this.request<R>('GET', url, config)
   }
 
-  post<R>(url: string, config?: RequestConfig) {
+  post<R>(url: string, config?: AxiosRequestConfig) {
     return this.request<R>('POST', url, config)
   }
 
-  put<R>(url: string, config?: RequestConfig) {
+  put<R>(url: string, config?: AxiosRequestConfig) {
     return this.request<R>('PUT', url, config)
   }
 
-  patch<R>(url: string, config?: RequestConfig) {
+  patch<R>(url: string, config?: AxiosRequestConfig) {
     return this.request<R>('PATCH', url, config)
   }
 
-  delete<R>(url: string, config?: RequestConfig) {
+  delete<R>(url: string, config?: AxiosRequestConfig) {
     return this.request<R>('DELETE', url, config)
   }
 }

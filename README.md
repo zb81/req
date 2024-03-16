@@ -45,13 +45,7 @@ interface Headers {
 
 // define a request function with error handler
 function getRes(params: IParams) {
-  return request.get<Root<IParams>>('/get', {
-    params,
-    responseCatchInterceptor(error) {
-      // handle your biz error throwed
-      console.error(error.message) // 'That\'s bad...'
-    },
-  })
+  return request.get<Root<IParams>>('/get', { params })
 }
 
 // invode a request with type
