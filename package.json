@@ -1,7 +1,7 @@
 {
   "name": "@zb81/req",
   "type": "module",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "Axios with class, TypeScript supported.",
   "author": "Zhu Bei <zbneversettle@gmail.com>",
   "license": "MIT",
