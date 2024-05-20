@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import to from 'await-to-js'
 import Request from '../src'
 import type { Root } from './types'
 
@@ -26,9 +27,11 @@ function getRes(params: IParams) {
 
 describe('should', () => {
   it('success', async () => {
-    const [res, err] = await getRes({ foo: 'bar' })
-    console.log(res, err?.message)
-    if (err == null)
+    const [err, res] = await to(getRes({ foo: 'bar' }))
+    console.log(err, res)
+    if (!err)
       expect(res.args.foo).toBe('bar') // 🚀
+    else
+      expect(err.message).toBe(ERROR_MSG)
   })
 })

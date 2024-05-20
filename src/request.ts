@@ -19,14 +19,12 @@ export class Request {
     this.instance.interceptors.response.use(config?.responseInterceptor, config?.responseCatchInterceptor)
   }
 
-  async request<R = AxiosResponse>(method: Method, url: string, config?: AxiosRequestConfig) {
-    try {
-      const res = await this.instance.request({ ...config, method, url })
-      return [res, null] as [R, null]
-    }
-    catch (err) {
-      return [null, err] as [null, Error]
-    }
+  request<R = AxiosResponse>(method: Method, url: string, config?: AxiosRequestConfig) {
+    return new Promise<R>((resolve, reject) => {
+      this.instance.request({ ...config, method, url })
+        .then(res => resolve(res as R))
+        .catch(reject)
+    })
   }
 
   get<R>(url: string, config?: AxiosRequestConfig) {

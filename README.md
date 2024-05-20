@@ -8,10 +8,10 @@
 
 ## Quick Start
 
+### 1. Create an instance
+
 ```typescript
-import Request from '@zb81/req'
-// or
-import { Request } from '@zb81/req'
+import Request from '@zb81/req' // or import { Request } from '@zb81/req'
 
 // biz error message
 const ERROR_MSG = 'That\'s bad...'
@@ -26,8 +26,11 @@ const request = new Request({
     return response.data
   },
 })
+```
 
-// declare types
+### 2. Declare types and req fn
+
+```typescript
 interface Root<P> {
   args: P
   headers: Headers
@@ -36,22 +39,27 @@ interface Root<P> {
 }
 
 interface Headers {
-  Accept: string
+  'Accept': string
   'Accept-Encoding': string
-  Host: string
+  'Host': string
   'User-Agent': string
   'X-Amzn-Trace-Id': string
 }
 
-// define a request function with error handler
 function getRes(params: IParams) {
   return request.get<Root<IParams>>('/get', { params })
 }
+```
 
-// invode a request with type
-const [res, err] = await getRes({ foo: 'bar' })
-if (err == null)
+### 3. Invoke with type and `await-to-js`
+```typescript
+import to from 'await-to-js'
+
+const [res, err] = await to(getRes({ foo: 'bar' }))
+if (!err)
   expect(res.args.foo).toBe('bar') // 🚀
+else
+  expect(err.message).toBe(ERROR_MSG)
 ```
 
 ## License
